@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/styles';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -11,14 +11,21 @@ import {
   ListItemText,
   ListSubheader,
 } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 import useStyles from './styles';
 import { useGetGenresQuery } from '../../services/TMDB';
 import genreIcons from '../../assets/genres';
+import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
 
 const Sidebar = ({ setMobileOpen }) => {
-  const { data, error, isFetching } = useGetGenresQuery();
+  const { genreOrCategoryName, type } = useSelector(
+    (state) => state.currentGenreOrCategory
+  );
+
+  const { data, isFetching } = useGetGenresQuery();
   const theme = useTheme();
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   let results = [];
   if (!isFetching) {
@@ -64,7 +71,11 @@ const Sidebar = ({ setMobileOpen }) => {
         <ListSubheader>Categories</ListSubheader>
         {categories.map(({ label, value }) => (
           <Link key={value} className={classes.links} to="/">
-            <ListItemButton onClick={() => {}}>
+            <ListItemButton
+              onClick={() =>
+                dispatch(selectGenreOrCategory({ type: 'category', value }))
+              }
+            >
               <ListItemIcon>
                 <img
                   src={genreIcons[label.toLowerCase()]}
@@ -88,7 +99,16 @@ const Sidebar = ({ setMobileOpen }) => {
         ) : (
           results.map((genre) => (
             <Link key={genre} className={classes.links} to="/">
-              <ListItemButton onClick={() => {}}>
+              <ListItemButton
+                onClick={() =>
+                  dispatch(
+                    selectGenreOrCategory({
+                      type: 'genre',
+                      value: genre,
+                    })
+                  )
+                }
+              >
                 <ListItemIcon>
                   <img
                     src={genreIcons[genre.toLowerCase()]}
